@@ -1,10 +1,7 @@
 import { Router } from "express";
-
-
 import { validateRequest } from "../../middlewares/validateRequest.js";
 import { checkAuth } from "../../middlewares/checkAuth.js";
 import { Role } from "./user.interface.js";
-
 import { UserControllers } from "./user.controller.js";
 import { addAddressZodSchema, changeRoleZodSchema, changeStatusZodSchema, createUserZodSchema, updateAddressZodSchema, updateUserZodSchema } from "./user.validation.js";
 

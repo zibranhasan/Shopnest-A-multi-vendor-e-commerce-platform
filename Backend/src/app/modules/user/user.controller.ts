@@ -1,8 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { JwtPayload } from "jsonwebtoken";
-
-
 import AppError from "../../errorHelpers/AppError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
 import { UserServices } from "./user.service.js";

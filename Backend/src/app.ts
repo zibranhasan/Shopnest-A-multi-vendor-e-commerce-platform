@@ -4,14 +4,18 @@ import { router } from "./app/routes/index.js";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler.js";
 import cookieParser from "cookie-parser";
 import expressSession from "express-session";
-// import passport from "passport";
-// import "./app/config/passport.js";
+import passport from "passport";
+import "./app/config/passport.js";
 import notFound from "./app/modules/auth/notFound.js";
 import { envVars } from "./app/config/env.js";
 
 // import { connectRedis } from "./app/config/redis.config.js";
 const app = express();
 
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(
     expressSession({
@@ -21,12 +25,9 @@ app.use(
     }),
 );
 
-// app.use(passport.initialize());
-// app.use(passport.session());
-app.use(cookieParser());
-app.use(express.json());
+app.use(passport.initialize());
+app.use(passport.session());
 app.set("trust proxy", 1);
-app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
         origin: envVars.FRONTEND_URL,
