@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import app from "./app.js";
 import { envVars } from "./app/config/env.js";
 import { seedSuperAdmin } from "./app/utils/seedSuperAdmin.js";
-// import { connectRedis } from "./app/config/redis.config.js";
+import { connectRedis } from "./app/config/redis.config.js";
 
 let server: Server;
 
@@ -22,9 +22,10 @@ const startServer = async () => {
 };
 
 (async () => {
-    //   await connectRedis();
+
     await startServer();
     await seedSuperAdmin();
+    await connectRedis();
 })();
 
 process.on("SIGTERM", () => {
