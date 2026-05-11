@@ -5,6 +5,7 @@ import { OtpRoutes } from "../modules/otp/otp.route.js";
 import { ShopRoutes } from "../modules/shop/shop.route.js";
 import { CategoryRoutes } from "../modules/category/category.route.js";
 import { ProductRoutes } from "../modules/product/product.route.js";
+import { CartRoutes } from "../modules/cart/cart.route.js";
 
 export const router = express.Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
     {
         path: "/products",
         route: ProductRoutes,
+    },
+    {
+        path: "/cart",
+        route: CartRoutes,
     },
 ];
 
