@@ -5,6 +5,8 @@ export const validateRequest =
     (zodSchema: ZodTypeAny) =>
         async (req: Request, res: Response, next: NextFunction) => {
             try {
+                // ✅ add fallback
+                req.body = req.body || {};
                 // req.body =JSON.parse(req.body.data || {}) || req.body
                 if (req.body.data) {
                     req.body = JSON.parse(req.body.data);

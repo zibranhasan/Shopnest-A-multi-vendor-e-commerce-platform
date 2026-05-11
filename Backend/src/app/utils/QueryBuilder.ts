@@ -24,13 +24,18 @@ export class QueryBuilder<T> {
     }
 
     search(searchableField: string[]): this {
-        const searchTerm = this.query.searchTerm || "";
-        const searchQuery = {
-            $or: searchableField.map((field) => ({
-                [field]: { $regex: searchTerm, $options: "i" },
-            })),
-        };
-        this.modelQuery = this.modelQuery.find(searchQuery);
+        const searchTerm = this.query.searchTerm;
+
+        // ✅ only apply search if searchTerm provided
+        if (searchTerm) {
+            const searchQuery = {
+                $or: searchableField.map((field) => ({
+                    [field]: { $regex: searchTerm, $options: "i" },
+                })),
+            };
+            this.modelQuery = this.modelQuery.find(searchQuery);
+        }
+
         return this;
     }
 
@@ -62,14 +67,14 @@ export class QueryBuilder<T> {
         return this.modelQuery;
     }
 
+    // ✅ REPLACE OLD getMeta() WITH THIS:
     async getMeta() {
-        const totalDocuments = await this.modelQuery.model.countDocuments();
-
+        const filter = this.modelQuery.getFilter();
+        const totalDocuments = await this.modelQuery.model
+            .countDocuments(filter);
         const page = Number(this.query.page) || 1;
         const limit = Number(this.query.limit) || 10;
-
         const totalPage = Math.ceil(totalDocuments / limit);
-
         return { page, limit, total: totalDocuments, totalPage };
     }
 }
