@@ -29,9 +29,16 @@ const createShop = async (
 
     const logo = files?.["logo"]?.[0]?.path;
     const banner = files?.["banner"]?.[0]?.path;
+    // ✅ Generate slug manually before create
+    const slug = payload.name!
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
 
     const shop = await Shop.create({
         ...payload,
+        slug,
         logo,
         banner,
         vendor: vendorId,

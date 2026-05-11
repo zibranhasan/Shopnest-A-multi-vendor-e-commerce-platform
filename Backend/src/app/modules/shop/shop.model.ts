@@ -4,7 +4,7 @@ import { ShopStatus, type IShop } from "./shop.interface.js";
 const shopSchema = new Schema<IShop>(
     {
         name: { type: String, required: true },
-        slug: { type: String, required: true, unique: true, lowercase: true },
+        slug: { type: String, unique: true, lowercase: true },
         description: { type: String },
         logo: { type: String },
         banner: { type: String },
