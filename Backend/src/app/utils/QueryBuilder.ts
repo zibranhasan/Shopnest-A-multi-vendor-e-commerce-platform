@@ -67,7 +67,7 @@ export class QueryBuilder<T> {
         return this.modelQuery;
     }
 
-    // ✅ REPLACE OLD getMeta() WITH THIS:
+
     async getMeta() {
         const filter = this.modelQuery.getFilter();
         const totalDocuments = await this.modelQuery.model
