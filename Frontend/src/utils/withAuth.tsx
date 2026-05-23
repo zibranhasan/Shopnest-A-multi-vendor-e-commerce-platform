@@ -1,0 +1,2 @@
+// withAuth HOC placeholder
+export {};

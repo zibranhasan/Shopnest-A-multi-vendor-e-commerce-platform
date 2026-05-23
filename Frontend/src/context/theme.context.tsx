@@ -1,0 +1,2 @@
+// Theme context placeholder
+export {};

@@ -1,0 +1,2 @@
+// generateRoutes helper placeholder
+export {};

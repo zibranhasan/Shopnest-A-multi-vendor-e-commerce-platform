@@ -1,0 +1,2 @@
+// getSidebarItems helper placeholder
+export {};
