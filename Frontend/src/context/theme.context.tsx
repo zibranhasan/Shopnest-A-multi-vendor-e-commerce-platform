@@ -1,2 +1,1 @@
-// Theme context placeholder
-export {};
+// empty — to be filled later

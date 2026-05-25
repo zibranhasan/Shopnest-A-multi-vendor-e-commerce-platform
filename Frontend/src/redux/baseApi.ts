@@ -1,2 +1,19 @@
-// RTK Query base API placeholder
-export {};
+import { createApi } from "@reduxjs/toolkit/query/react";
+import axiosBaseQuery from "./axiosBaseQuery";
+
+export const baseApi = createApi({
+  reducerPath: "baseApi",
+  baseQuery: axiosBaseQuery(),
+  tagTypes: [
+    "Auth",
+    "User",
+    "Shop",
+    "Product",
+    "Category",
+    "Cart",
+    "Order",
+    "Coupon",
+    "Review",
+  ],
+  endpoints: () => ({}),
+});

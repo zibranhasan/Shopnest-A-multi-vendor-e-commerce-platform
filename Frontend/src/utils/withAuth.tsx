@@ -1,2 +1,1 @@
-// withAuth HOC placeholder
-export {};
+// empty — to be filled later

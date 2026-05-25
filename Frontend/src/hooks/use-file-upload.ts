@@ -1,2 +1,1 @@
-// Empty use-file-upload hook placeholder
-export {};
+// empty — to be filled later

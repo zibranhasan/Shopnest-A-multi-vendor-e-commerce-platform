@@ -1,2 +1,1 @@
-// Empty shop types placeholder
-export {};
+// empty — to be filled later

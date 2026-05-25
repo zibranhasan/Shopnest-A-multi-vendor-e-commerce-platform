@@ -1,2 +1,1 @@
-// Empty coupon types placeholder
-export {};
+// empty — to be filled later

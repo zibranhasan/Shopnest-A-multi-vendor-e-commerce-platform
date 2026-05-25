@@ -1,2 +1,1 @@
-// Empty useTheme hook placeholder
-export {};
+// empty — to be filled later

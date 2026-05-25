@@ -1,2 +1,1 @@
-// Empty cart types placeholder
-export {};
+// empty — to be filled later

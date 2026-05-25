@@ -1,2 +1,7 @@
-// Empty types index placeholder
-export {};
+// shared types
+export interface IResponse<T> {
+    statusCode: number;
+    success: boolean;
+    message: string;
+    data: T;
+}

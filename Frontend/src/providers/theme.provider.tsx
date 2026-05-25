@@ -1,2 +1,1 @@
-// Theme provider placeholder
-export {};
+// empty — to be filled later

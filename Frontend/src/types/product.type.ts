@@ -1,2 +1,1 @@
-// Empty product types placeholder
-export {};
+// empty — to be filled later

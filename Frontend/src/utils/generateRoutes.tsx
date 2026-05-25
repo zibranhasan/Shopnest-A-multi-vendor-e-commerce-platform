@@ -1,2 +1,1 @@
-// generateRoutes helper placeholder
-export {};
+// empty — to be filled later
