@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useRegisterMutation } from "@/redux/features/auth/auth.api";
 import { User, Mail, Phone, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import config from "@/config";
 
 // ============= SCHEMA ==============
 const registerSchema = z
@@ -255,7 +256,9 @@ const Register = () => {
 
                     {/* Social Logins */}
                     <div className="grid grid-cols-2 gap-3 mb-6">
+
                         <Button
+                            onClick={() => window.open(`${config.API_URL}/auth/google`)}
                             type="button"
                             variant="outline"
                             className="h-11 rounded-xl font-medium border border-border/60 bg-background/40 hover:bg-muted/70 hover:text-foreground hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2"

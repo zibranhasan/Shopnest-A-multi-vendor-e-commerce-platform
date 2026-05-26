@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
     NavigationMenu,
@@ -17,9 +17,15 @@ import {
 } from "lucide-react";
 
 import ModeToggler from "./ModeToggler";
-import { authApi, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import {
+    authApi,
+    useLogoutMutation,
+    useUserInfoQuery,
+} from "@/redux/features/auth/auth.api";
 import { useAppDispatch } from "@/redux/hook";
+import { role } from "@/constants/role";
 
+// ============ PUBLIC NAV LINKS ============
 const navigationLinks = [
     { href: "/", label: "Home" },
     { href: "/products", label: "Products" },
@@ -27,23 +33,43 @@ const navigationLinks = [
 ];
 
 export default function Navbar() {
+    const location = useLocation();
+
     const { data } = useUserInfoQuery(undefined);
     const [logout] = useLogoutMutation();
     const dispatch = useAppDispatch();
-    console.log("data from /me", data?.data?.email);
 
+    // ============ DASHBOARD LINK ============
+    const dashboardLink =
+        data?.data?.role === role.admin ||
+            data?.data?.role === role.superAdmin
+            ? "/admin"
+            : data?.data?.role === role.vendor
+                ? "/vendor"
+                : data?.data?.role === role.customer
+                    ? "/customer"
+                    : null;
+
+    // ============ CHECK IF INSIDE DASHBOARD ============
+    const isDashboardRoute =
+        location.pathname.startsWith("/admin") ||
+        location.pathname.startsWith("/vendor") ||
+        location.pathname.startsWith("/customer");
+
+    // ============ LOGOUT ============
     const handleLogout = async () => {
         await logout(undefined);
         dispatch(authApi.util.resetApiState());
-    }
+    };
+
     return (
-        <header className="sticky top-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
+        <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
 
                 {/* LEFT SIDE */}
-                <div className="flex items-center gap-8">
+                <div className="flex items-center gap-6">
 
-                    {/* Mobile Menu */}
+                    {/* MOBILE MENU */}
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
@@ -57,9 +83,11 @@ export default function Navbar() {
 
                         <PopoverContent
                             align="start"
-                            className="w-52 rounded-2xl border-border/50 bg-background/95 backdrop-blur-xl"
+                            className="w-52 rounded-2xl border-border/50 bg-background/95 p-2 backdrop-blur-xl"
                         >
                             <nav className="flex flex-col gap-1">
+
+                                {/* PUBLIC LINKS */}
                                 {navigationLinks.map((link) => (
                                     <Link
                                         key={link.href}
@@ -69,6 +97,16 @@ export default function Navbar() {
                                         {link.label}
                                     </Link>
                                 ))}
+
+                                {/* DASHBOARD LINK */}
+                                {dashboardLink && !isDashboardRoute && (
+                                    <Link
+                                        to={dashboardLink}
+                                        className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                )}
                             </nav>
                         </PopoverContent>
                     </Popover>
@@ -76,13 +114,13 @@ export default function Navbar() {
                     {/* LOGO */}
                     <Link
                         to="/"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-3"
                     >
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
                             <ShoppingBag className="h-5 w-5" />
                         </div>
 
-                        <span className="text-lg font-bold tracking-tight">
+                        <span className="text-xl font-bold tracking-tight">
                             Shopnest
                         </span>
                     </Link>
@@ -90,38 +128,70 @@ export default function Navbar() {
                     {/* DESKTOP NAV */}
                     <NavigationMenu className="hidden md:flex">
                         <NavigationMenuList className="gap-2">
+
+                            {/* PUBLIC LINKS */}
                             {navigationLinks.map((link) => (
                                 <NavigationMenuItem key={link.href}>
                                     <NavigationMenuLink asChild>
                                         <Link
                                             to={link.href}
-                                            className="group inline-flex h-10 w-max items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                                            className="group inline-flex h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                                         >
                                             {link.label}
                                         </Link>
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
                             ))}
+
+                            {/* DASHBOARD LINK */}
+                            {dashboardLink && !isDashboardRoute && (
+                                <NavigationMenuItem>
+                                    <NavigationMenuLink asChild>
+                                        <Link
+                                            to={dashboardLink}
+                                            className="group inline-flex h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                                        >
+                                            Dashboard
+                                        </Link>
+                                    </NavigationMenuLink>
+                                </NavigationMenuItem>
+                            )}
                         </NavigationMenuList>
                     </NavigationMenu>
                 </div>
 
                 {/* RIGHT SIDE */}
                 <div className="flex items-center gap-2">
+
+                    {/* THEME TOGGLER */}
                     <ModeToggler />
-                    {data?.data?.email && (
+
+                    {/* AUTH BUTTONS */}
+                    {data?.data?.email ? (
                         <Button
                             onClick={handleLogout}
                             variant="outline"
-                            className="text-sm"
+                            className="rounded-xl text-sm"
                         >
                             Logout
                         </Button>
-                    )}
-                    {!data?.data?.email && (
-                        <Button asChild className="text-sm">
-                            <Link to="/login">Login</Link>
-                        </Button>
+                    ) : (
+                        <>
+                            <Button
+                                asChild
+                                variant="ghost"
+                                className="hidden sm:inline-flex rounded-xl"
+                            >
+                                <Link to="/login">Login</Link>
+                            </Button>
+
+                            <Button
+                                asChild
+                                className="rounded-xl shadow-lg shadow-primary/20"
+                            >
+                                <Link to="/register">Register</Link>
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>
