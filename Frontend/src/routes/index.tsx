@@ -4,6 +4,7 @@ import Login from "@/pages/auth/Login";
 import CommonLayout from "@/components/layout/CommonLayout";
 import Home from "@/pages/home/Home";
 import Register from "@/pages/auth/Register";
+import Verify from "@/pages/auth/verify";
 
 export const router = createBrowserRouter([
   {
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
+      { path: "/verify", element: <Verify /> },
     ],
   },
 ]);

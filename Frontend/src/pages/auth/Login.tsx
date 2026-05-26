@@ -40,19 +40,25 @@ const Login = () => {
     const onSubmit = async (data: LoginFormData) => {
         try {
             const res = await login(data).unwrap();
+            // console.log("Data From Form", data);
+            // console.log("Data From Response", res);
+            if (res.success) {
+                toast.success("Logged in successfully");
+                navigate("/");
+            }
+        } catch (err: any) {
+            console.error(err);
 
-            // Store token — adjust the path to match your actual response shape
-            const token = res?.data?.token;
-            if (token) {
-                localStorage.setItem("token", token);
+            if (err?.data?.message === "Password does not match") {
+                toast.error("Invalid credentials");
             }
 
-            toast.success("Logged in successfully!");
-            navigate("/");
-        } catch (err: any) {
-            const message =
-                err?.data?.message || "Login failed. Please try again.";
-            toast.error(message);
+            if (err?.data?.message === "User is not verified") {
+                toast.error("Your account is not verified");
+                navigate("/verify", {
+                    state: { email: data.email }
+                });
+            }
         }
     };
 
