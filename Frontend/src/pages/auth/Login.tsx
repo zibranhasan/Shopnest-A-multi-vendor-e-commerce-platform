@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,10 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [login] = useLoginMutation();
+
+    const redirect = searchParams.get("redirect") || "/";
 
     const {
         register,
@@ -45,7 +48,7 @@ const Login = () => {
             // console.log("Data From Response", res);
             if (res.success) {
                 toast.success("Logged in successfully");
-                navigate("/");
+                navigate(redirect);
             }
         } catch (err: any) {
             console.error(err);
@@ -119,7 +122,7 @@ const Login = () => {
                             <div className="grid grid-cols-2 gap-3 mb-6">
 
                                 <Button
-                                    onClick={() => window.open(`${config.API_URL}/auth/google`)}
+                                    onClick={() => window.location.href = `${config.API_URL}/auth/google?redirect=${encodeURIComponent(redirect)}`}
                                     type="button"
                                     variant="outline"
                                     className="h-11 rounded-xl font-medium border border-border/60 bg-background/40 hover:bg-muted/70 hover:text-foreground hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2"

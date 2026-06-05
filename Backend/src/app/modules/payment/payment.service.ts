@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Order } from "../order/order.model.js";
 import { User } from "../user/user.model.js";
+import { redisClient } from "../../config/redis.config.js";
 import { Product } from "../product/product.model.js";
 import { Coupon } from "../coupon/coupon.model.js";
 import { OrderStatus, PaymentStatus } from "../order/order.interface.js";
@@ -88,6 +89,10 @@ const successPayment = async (query: Record<string, string>) => {
                 transactionId: order.transactionId,
             },
         });
+
+        // Clear cart from Redis on successful payment
+        const customerId = order.customer._id?.toString() || order.customer.toString();
+        await redisClient.del(`cart:${customerId}`);
 
         await session.commitTransaction();
         await session.endSession();

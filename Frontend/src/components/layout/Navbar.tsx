@@ -14,16 +14,21 @@ import {
 import {
     Menu,
     ShoppingBag,
+    ShoppingCart,
+    Heart,
 } from "lucide-react";
 
 import ModeToggler from "./ModeToggler";
 import {
-    authApi,
     useLogoutMutation,
     useUserInfoQuery,
 } from "@/redux/features/auth/auth.api";
+import { useGetCartQuery } from "@/redux/features/cart/cart.api";
+import { useGetWishlistQuery } from "@/redux/features/user/user.api";
 import { useAppDispatch } from "@/redux/hook";
 import { role } from "@/constants/role";
+import { baseApi } from "@/redux/baseApi";
+
 
 // ============ PUBLIC NAV LINKS ============
 const navigationLinks = [
@@ -38,6 +43,21 @@ export default function Navbar() {
     const { data } = useUserInfoQuery(undefined);
     const [logout] = useLogoutMutation();
     const dispatch = useAppDispatch();
+    const isLoggedIn = !!data?.data?.email;
+    const { data: cartData } = useGetCartQuery(undefined, {
+        skip: !data?.data?.email,
+    });
+    const cartCount = isLoggedIn
+        ? cartData?.data?.totalItems || 0
+        : 0;
+
+    const { data: wishlistData } = useGetWishlistQuery(undefined, {
+        skip: !data?.data?.email,
+    });
+    const wishlistCount = isLoggedIn
+        ? wishlistData?.data?.length || 0
+        : 0;
+
 
     // ============ DASHBOARD LINK ============
     const dashboardLink =
@@ -57,9 +77,11 @@ export default function Navbar() {
         location.pathname.startsWith("/customer");
 
     // ============ LOGOUT ============
+
+
     const handleLogout = async () => {
         await logout(undefined);
-        dispatch(authApi.util.resetApiState());
+        dispatch(baseApi.util.resetApiState());
     };
 
     return (
@@ -166,7 +188,44 @@ export default function Navbar() {
                     {/* THEME TOGGLER */}
                     <ModeToggler />
 
+                    {/* WISHLIST HEART ICON */}
+                    <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="relative rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                        aria-label="View Wishlist"
+                    >
+                        <Link to="/wishlist">
+                            <Heart className="h-5 w-5" />
+                            {wishlistCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-extrabold text-white animate-in zoom-in duration-300 shadow-md shadow-rose-500/20">
+                                    {wishlistCount}
+                                </span>
+                            )}
+                        </Link>
+                    </Button>
+
+                    {/* CART ICON */}
+                    <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="relative rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                        aria-label="View Cart"
+                    >
+                        <Link to="/cart">
+                            <ShoppingCart className="h-5 w-5" />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-extrabold text-primary-foreground animate-in zoom-in duration-300 shadow-md shadow-primary/20">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
+                    </Button>
+
                     {/* AUTH BUTTONS */}
+
                     {data?.data?.email ? (
                         <Button
                             onClick={handleLogout}

@@ -67,17 +67,21 @@ const getCart = async (userId: string): Promise<ICart> => {
 
     const items: ICartItem[] = products.map((product) => {
         const productId = product._id.toString();
+        const shopObj = product.shop as { _id: Types.ObjectId; name?: string } | null;
         return {
             productId,
             name: product.name,
+            slug: product.slug,
             image: product.images[0] || "",   // ✅ fallback
             price: product.discountPrice || product.price,
             quantity: Number(cartData[productId]),
             stock: product.stock,
-            shopId: (product.shop as { _id: Types.ObjectId })._id.toString(), // ✅
+            shopId: shopObj?._id ? shopObj._id.toString() : "",
             vendorId: product.vendor.toString(),
+            shopName: shopObj?.name || "Shopnest Merchant",
         };
     });
+
 
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);

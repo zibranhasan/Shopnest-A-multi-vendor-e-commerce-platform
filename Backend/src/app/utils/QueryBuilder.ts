@@ -11,14 +11,36 @@ export class QueryBuilder<T> {
     }
 
     filter(): this {
-        const filter = { ...this.query };
+        const filter: Record<string, any> = { ...this.query };
 
         for (const field of excludeField) {
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
             delete filter[field];
         }
 
-        this.modelQuery = this.modelQuery.find(filter); // Tour.find().find(filter)
+        // PRICE RANGE FILTER
+        if (filter.minPrice || filter.maxPrice) {
+            filter.price = {};
+
+            if (filter.minPrice) {
+                filter.price.$gte = Number(filter.minPrice);
+            }
+
+            if (filter.maxPrice) {
+                filter.price.$lte = Number(filter.maxPrice);
+            }
+
+            delete filter.minPrice;
+            delete filter.maxPrice;
+        }
+        if (filter.category) {
+            const categories =
+                filter.category.split(",");
+
+            filter.category = {
+                $in: categories,
+            };
+        }
+        this.modelQuery = this.modelQuery.find(filter);
 
         return this;
     }

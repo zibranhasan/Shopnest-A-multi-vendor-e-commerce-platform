@@ -11,10 +11,12 @@ export const adminSidebarItems: ISidebarItem[] = [
     {
         title: "Management",
         items: [
-            { title: "Users", url: "/admin/users", component: AdminUsers },
-            { title: "Shops", url: "/admin/shops", component: AdminShops },
             { title: "Products", url: "/admin/products", component: AdminProducts },
             { title: "Categories", url: "/admin/categories", component: AdminCategories },
+            { title: "Shops", url: "/admin/shops", component: AdminShops },
+            { title: "Users", url: "/admin/users", component: AdminUsers },
+
+
         ],
     },
     {

@@ -106,9 +106,6 @@ const placeOrder = async (customerId: string,
         });
     }
 
-    // 11. clear cart
-    await redisClient.del(`cart:${customerId}`);
-
     return order;
 };
 
