@@ -32,7 +32,7 @@ export const userApi = baseApi.injectEndpoints({
         }),
 
         // ✅ Update my profile
-        updateMyProfile: builder.mutation({
+        updateProfile: builder.mutation({
             query: (data: FormData) => ({
                 url: "/users/me",
                 method: "PATCH",
@@ -128,16 +128,6 @@ export const userApi = baseApi.injectEndpoints({
         // ADMIN ROUTES
         // =========================================
 
-        // ✅ Get all users
-        getAllUsers: builder.query({
-            query: (params) => ({
-                url: "/users",
-                method: "GET",
-                params,
-            }),
-            providesTags: ["User"],
-        }),
-
         // ✅ Get user by ID
         getUserById: builder.query({
             query: (id: string) => ({
@@ -145,38 +135,6 @@ export const userApi = baseApi.injectEndpoints({
                 method: "GET",
             }),
             providesTags: ["User"],
-        }),
-
-        // ✅ Change user role
-        changeUserRole: builder.mutation({
-            query: ({
-                id,
-                role,
-            }: {
-                id: string;
-                role: string;
-            }) => ({
-                url: `/users/${id}/role`,
-                method: "PATCH",
-                data: { role },
-            }),
-            invalidatesTags: ["User"],
-        }),
-
-        // ✅ Change user status
-        changeUserStatus: builder.mutation({
-            query: ({
-                id,
-                status,
-            }: {
-                id: string;
-                status: string;
-            }) => ({
-                url: `/users/${id}/status`,
-                method: "PATCH",
-                data: { status },
-            }),
-            invalidatesTags: ["User"],
         }),
 
     }),
@@ -188,7 +146,7 @@ export const {
 
     // PROFILE
     useGetMyProfileQuery,
-    useUpdateMyProfileMutation,
+    useUpdateProfileMutation,
     useDeleteMyProfileMutation,
 
     // ADDRESS
@@ -202,8 +160,5 @@ export const {
     useRemoveFromWishlistMutation,
 
     // ADMIN
-    useGetAllUsersQuery,
     useGetUserByIdQuery,
-    useChangeUserRoleMutation,
-    useChangeUserStatusMutation,
 } = userApi;

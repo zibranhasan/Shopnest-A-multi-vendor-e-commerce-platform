@@ -61,19 +61,19 @@ router.delete(
 // Wishlist
 router.post(
     "/me/wishlist",
-    checkAuth(Role.CUSTOMER),
+    checkAuth(Role.CUSTOMER, Role.ADMIN, Role.SUPER_ADMIN, Role.VENDOR),
     UserControllers.addToWishlist,
 );
 
 router.delete(
     "/me/wishlist/:productId",
-    checkAuth(Role.CUSTOMER),
+    checkAuth(Role.CUSTOMER, Role.ADMIN, Role.SUPER_ADMIN, Role.VENDOR),
     UserControllers.removeFromWishlist,
 );
 
 router.get(
     "/me/wishlist",
-    checkAuth(Role.CUSTOMER),
+    checkAuth(Role.CUSTOMER, Role.ADMIN, Role.SUPER_ADMIN, Role.VENDOR),
     UserControllers.getWishlist,
 );
 

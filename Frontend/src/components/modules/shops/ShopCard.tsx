@@ -32,9 +32,9 @@ const ShopCard = ({ shop }: ShopCardProps) => {
 
     const joinedDate = shop.createdAt
         ? new Date(shop.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              year: "numeric",
-          })
+            month: "short",
+            year: "numeric",
+        })
         : null;
 
     return (
@@ -74,7 +74,7 @@ const ShopCard = ({ shop }: ShopCardProps) => {
 
                 {/* Logo + Name row */}
                 <div className="flex items-end gap-3 -mt-7 mb-4">
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border-4 border-card bg-background shadow-md">
+                    <div className="relative h-18 w-14 shrink-0 overflow-hidden rounded-2xl border-4 border-card bg-background shadow-md">
                         <img
                             src={shop.logo || FALLBACK_LOGO}
                             alt={`${shop.name} logo`}
