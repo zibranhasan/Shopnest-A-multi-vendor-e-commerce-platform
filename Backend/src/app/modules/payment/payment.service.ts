@@ -9,6 +9,7 @@ import { getTransactionId } from "../../utils/getTransactionId.js";
 import { sslPaymentInit } from "./sslcommerz.service.js";
 import { sendEmail } from "../../utils/sendEmail.js";
 import AppError from "../../errorHelpers/AppError.js";
+import { Shop } from "../shop/shop.model.js";
 
 const initPayment = async (orderId: string, customerId: string) => {
     const order = await Order.findById(orderId);
@@ -74,7 +75,19 @@ const successPayment = async (query: Record<string, string>) => {
         if (!order) {
             throw new AppError(404, "Order not found");
         }
-
+        // Update shop statistics
+        for (const item of order.items) {
+            await Shop.findByIdAndUpdate(
+                item.shop,
+                {
+                    $inc: {
+                        totalSales: item.quantity,
+                        totalRevenue: item.price * item.quantity,
+                    },
+                },
+                { session }
+            );
+        }
         const customer = order.customer as any;
 
         await sendEmail({

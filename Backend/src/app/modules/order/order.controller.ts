@@ -63,6 +63,7 @@ const getAllOrdersAdmin = catchAsync(async (req, res) => {
         success: true,
         message: "All orders retrieved successfully",
         meta: result.meta,
+        statistics: result.statistics,
         data: result.data,
     });
 });

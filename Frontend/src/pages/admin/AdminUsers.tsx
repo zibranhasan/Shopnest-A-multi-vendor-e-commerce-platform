@@ -63,6 +63,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useGetUserByIdQuery } from "@/redux/features/user/user.api";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const getPlaceholderBg = (name: string) => {
   const charCode = name.charCodeAt(0) || 0;
@@ -115,7 +117,9 @@ const getRoleBadge = (role: string) => {
         </Badge>
       );
     default:
-      return <Badge className="font-bold rounded-full px-2.5 py-0.5">{role}</Badge>;
+      return (
+        <Badge className="font-bold rounded-full px-2.5 py-0.5">{role}</Badge>
+      );
   }
 };
 
@@ -140,7 +144,9 @@ const getStatusBadge = (status: string) => {
         </Badge>
       );
     default:
-      return <Badge className="font-bold rounded-full px-2.5 py-0.5">{status}</Badge>;
+      return (
+        <Badge className="font-bold rounded-full px-2.5 py-0.5">{status}</Badge>
+      );
   }
 };
 
@@ -158,11 +164,20 @@ const getPageNumbers = (current: number, total: number) => {
 };
 
 const AdminUsers = () => {
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { data: userData } = useUserInfoQuery(undefined);
+  const { data: userProfile, isLoading: isProfileLoading } =
+    useGetUserByIdQuery(selectedUserId!, {
+      skip: !selectedUserId,
+    });
   const currentUserId = userData?.data?._id;
 
-  const [changeUserRole, { isLoading: isChangingRole }] = useChangeUserRoleMutation();
-  const [changeUserStatus, { isLoading: isChangingStatus }] = useChangeUserStatusMutation();
+  const [changeUserRole, { isLoading: isChangingRole }] =
+    useChangeUserRoleMutation();
+  const [changeUserStatus, { isLoading: isChangingStatus }] =
+    useChangeUserStatusMutation();
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -232,7 +247,9 @@ const AdminUsers = () => {
         await changeUserStatus({ id: user._id, isActive: newStatus }).unwrap();
         toast.success(`${user.name}'s status changed to ${newStatus}`);
       } catch (err: any) {
-        toast.error(err?.data?.message || `Failed to change status to ${newStatus}`);
+        toast.error(
+          err?.data?.message || `Failed to change status to ${newStatus}`,
+        );
       } finally {
         setMutatingId(null);
       }
@@ -290,9 +307,13 @@ const AdminUsers = () => {
         <DropdownMenuContent
           align="end"
           sideOffset={8}
-          className="z-[99999] w-56 rounded-xl border border-border/40 bg-card shadow-xl">
+          className="z-[99999] w-56 rounded-xl border border-border/40 bg-card shadow-xl"
+        >
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger disabled={isSelf} className="cursor-pointer gap-2">
+            <DropdownMenuSubTrigger
+              disabled={isSelf}
+              className="cursor-pointer gap-2"
+            >
               <Shield className="h-4 w-4 text-muted-foreground" />
               Change Role
             </DropdownMenuSubTrigger>
@@ -329,7 +350,10 @@ const AdminUsers = () => {
           </DropdownMenuSub>
 
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger disabled={isSelf} className="cursor-pointer gap-2">
+            <DropdownMenuSubTrigger
+              disabled={isSelf}
+              className="cursor-pointer gap-2"
+            >
               <UserCheck className="h-4 w-4 text-muted-foreground" />
               Change Status
             </DropdownMenuSubTrigger>
@@ -363,7 +387,10 @@ const AdminUsers = () => {
           <DropdownMenuSeparator className="bg-border/40" />
 
           <DropdownMenuItem
-            onClick={() => toast.info("Coming soon")}
+            onClick={() => {
+              setSelectedUserId(user._id);
+              setIsProfileOpen(true);
+            }}
             className="cursor-pointer gap-2"
           >
             <Eye className="h-4 w-4 text-muted-foreground" />
@@ -379,14 +406,21 @@ const AdminUsers = () => {
       {/* Page Header */}
       <div>
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">Users</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">
+            Users
+          </h1>
           {!isLoading && (
-            <Badge variant="secondary" className="rounded-full font-bold px-3 py-1 bg-primary/10 text-primary border-primary/25 animate-in zoom-in duration-300">
+            <Badge
+              variant="secondary"
+              className="rounded-full font-bold px-3 py-1 bg-primary/10 text-primary border-primary/25 animate-in zoom-in duration-300"
+            >
               {meta?.total || 0}
             </Badge>
           )}
         </div>
-        <p className="text-sm text-muted-foreground mt-1">Manage all platform users</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage all platform users
+        </p>
       </div>
 
       {/* Filters row */}
@@ -408,11 +442,21 @@ const AdminUsers = () => {
               <SelectValue placeholder="All Roles" />
             </SelectTrigger>
             <SelectContent className="rounded-xl border-border/40 bg-card/95 backdrop-blur-md">
-              <SelectItem value="all" className="cursor-pointer">All Roles</SelectItem>
-              <SelectItem value="CUSTOMER" className="cursor-pointer">Customer</SelectItem>
-              <SelectItem value="VENDOR" className="cursor-pointer">Vendor</SelectItem>
-              <SelectItem value="ADMIN" className="cursor-pointer">Admin</SelectItem>
-              <SelectItem value="SUPER_ADMIN" className="cursor-pointer">Super Admin</SelectItem>
+              <SelectItem value="all" className="cursor-pointer">
+                All Roles
+              </SelectItem>
+              <SelectItem value="CUSTOMER" className="cursor-pointer">
+                Customer
+              </SelectItem>
+              <SelectItem value="VENDOR" className="cursor-pointer">
+                Vendor
+              </SelectItem>
+              <SelectItem value="ADMIN" className="cursor-pointer">
+                Admin
+              </SelectItem>
+              <SelectItem value="SUPER_ADMIN" className="cursor-pointer">
+                Super Admin
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -422,10 +466,18 @@ const AdminUsers = () => {
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent className="rounded-xl border-border/40 bg-card/95 backdrop-blur-md">
-              <SelectItem value="all" className="cursor-pointer">All Status</SelectItem>
-              <SelectItem value="ACTIVE" className="cursor-pointer">Active</SelectItem>
-              <SelectItem value="INACTIVE" className="cursor-pointer">Inactive</SelectItem>
-              <SelectItem value="BLOCKED" className="cursor-pointer">Blocked</SelectItem>
+              <SelectItem value="all" className="cursor-pointer">
+                All Status
+              </SelectItem>
+              <SelectItem value="ACTIVE" className="cursor-pointer">
+                Active
+              </SelectItem>
+              <SelectItem value="INACTIVE" className="cursor-pointer">
+                Inactive
+              </SelectItem>
+              <SelectItem value="BLOCKED" className="cursor-pointer">
+                Blocked
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -439,16 +491,29 @@ const AdminUsers = () => {
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow className="border-b border-border/40 hover:bg-transparent">
-                  <TableHead className="font-bold text-foreground">User</TableHead>
-                  <TableHead className="font-bold text-foreground">Role</TableHead>
-                  <TableHead className="font-bold text-foreground">Status</TableHead>
-                  <TableHead className="font-bold text-foreground">Verified</TableHead>
-                  <TableHead className="w-[80px] font-bold text-foreground text-right">Actions</TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    User
+                  </TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    Role
+                  </TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    Status
+                  </TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    Verified
+                  </TableHead>
+                  <TableHead className="w-[80px] font-bold text-foreground text-right">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {Array.from({ length: 6 }).map((_, idx) => (
-                  <TableRow key={idx} className="border-b border-border/30 hover:bg-transparent">
+                  <TableRow
+                    key={idx}
+                    className="border-b border-border/30 hover:bg-transparent"
+                  >
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Skeleton className="h-10 w-10 rounded-full" />
@@ -479,7 +544,10 @@ const AdminUsers = () => {
           {/* Mobile Skeleton */}
           <div className="grid grid-cols-1 gap-4 md:hidden">
             {Array.from({ length: 6 }).map((_, idx) => (
-              <Card key={idx} className="rounded-2xl border border-border/40 bg-card p-5 space-y-4 shadow-sm">
+              <Card
+                key={idx}
+                className="rounded-2xl border border-border/40 bg-card p-5 space-y-4 shadow-sm"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Skeleton className="h-10 w-10 rounded-full" />
@@ -505,7 +573,9 @@ const AdminUsers = () => {
             <Users className="h-9 w-9 text-primary" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-extrabold text-foreground">No users found</h2>
+            <h2 className="text-2xl font-extrabold text-foreground">
+              No users found
+            </h2>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">
               Try adjusting your search or filters
             </p>
@@ -518,11 +588,21 @@ const AdminUsers = () => {
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow className="border-b border-border/40 hover:bg-transparent">
-                  <TableHead className="font-bold text-foreground">User</TableHead>
-                  <TableHead className="font-bold text-foreground">Role</TableHead>
-                  <TableHead className="font-bold text-foreground">Status</TableHead>
-                  <TableHead className="font-bold text-foreground">Verified</TableHead>
-                  <TableHead className="w-[80px] font-bold text-foreground text-right">Actions</TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    User
+                  </TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    Role
+                  </TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    Status
+                  </TableHead>
+                  <TableHead className="font-bold text-foreground">
+                    Verified
+                  </TableHead>
+                  <TableHead className="w-[80px] font-bold text-foreground text-right">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -534,8 +614,15 @@ const AdminUsers = () => {
                     <TableCell className="py-3.5">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10 border border-border/50 shadow-sm">
-                          {user.picture ? <AvatarImage src={user.picture} alt={user.name} /> : null}
-                          <AvatarFallback className={cn("font-bold text-sm select-none", getPlaceholderBg(user.name))}>
+                          {user.picture ? (
+                            <AvatarImage src={user.picture} alt={user.name} />
+                          ) : null}
+                          <AvatarFallback
+                            className={cn(
+                              "font-bold text-sm select-none",
+                              getPlaceholderBg(user.name),
+                            )}
+                          >
                             {user.name.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
@@ -548,12 +635,18 @@ const AdminUsers = () => {
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-0.5">{user.email}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {user.email}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="py-3.5">{getRoleBadge(user.role)}</TableCell>
-                    <TableCell className="py-3.5">{getStatusBadge(user.isActive)}</TableCell>
+                    <TableCell className="py-3.5">
+                      {getRoleBadge(user.role)}
+                    </TableCell>
+                    <TableCell className="py-3.5">
+                      {getStatusBadge(user.isActive)}
+                    </TableCell>
                     <TableCell className="py-3.5">
                       {user.isVerified ? (
                         <span className="inline-flex items-center justify-center text-emerald-500">
@@ -565,7 +658,9 @@ const AdminUsers = () => {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="py-3.5 text-right">{renderActionsDropdown(user)}</TableCell>
+                    <TableCell className="py-3.5 text-right">
+                      {renderActionsDropdown(user)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -582,8 +677,15 @@ const AdminUsers = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border border-border/50">
-                      {user.picture ? <AvatarImage src={user.picture} alt={user.name} /> : null}
-                      <AvatarFallback className={cn("font-bold text-sm select-none", getPlaceholderBg(user.name))}>
+                      {user.picture ? (
+                        <AvatarImage src={user.picture} alt={user.name} />
+                      ) : null}
+                      <AvatarFallback
+                        className={cn(
+                          "font-bold text-sm select-none",
+                          getPlaceholderBg(user.name),
+                        )}
+                      >
                         {user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -601,7 +703,9 @@ const AdminUsers = () => {
                           </span>
                         )}
                       </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
 
@@ -622,7 +726,9 @@ const AdminUsers = () => {
           {meta && meta.total > 0 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/40">
               <span className="text-sm text-muted-foreground">
-                Showing <strong>{((page - 1) * limit) + 1}</strong> to <strong>{Math.min(page * limit, meta.total)}</strong> of <strong>{meta.total}</strong> users
+                Showing <strong>{(page - 1) * limit + 1}</strong> to{" "}
+                <strong>{Math.min(page * limit, meta.total)}</strong> of{" "}
+                <strong>{meta.total}</strong> users
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -646,7 +752,7 @@ const AdminUsers = () => {
                         "rounded-xl h-9 w-9 p-0 text-xs font-bold transition-all duration-150 cursor-pointer",
                         page === pNum
                           ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
-                          : "border-border/80 hover:bg-muted"
+                          : "border-border/80 hover:bg-muted",
                       )}
                     >
                       {pNum}
@@ -658,7 +764,9 @@ const AdminUsers = () => {
                   variant="outline"
                   size="sm"
                   disabled={page === (meta.totalPage || 1)}
-                  onClick={() => setPage((p) => Math.min(p + 1, meta.totalPage || 1))}
+                  onClick={() =>
+                    setPage((p) => Math.min(p + 1, meta.totalPage || 1))
+                  }
                   className="rounded-xl h-9 px-3 text-xs font-bold border-border/80 hover:bg-muted cursor-pointer"
                 >
                   Next
@@ -669,16 +777,121 @@ const AdminUsers = () => {
         </>
       )}
 
+      <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+        <DialogContent className="max-w-2xl rounded-3xl border border-border/40 bg-card/95 backdrop-blur-md shadow-xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-extrabold tracking-tight">
+              User Profile
+            </DialogTitle>
+
+            <DialogDescription>
+              Detailed information about the selected user
+            </DialogDescription>
+          </DialogHeader>
+
+          {isProfileLoading ? (
+            <div className="space-y-4 py-4">
+              <Skeleton className="h-16 w-full rounded-2xl" />
+              <Skeleton className="h-40 w-full rounded-2xl" />
+            </div>
+          ) : (
+            <>
+              {/* User Header */}
+              <div className="flex items-center gap-4 rounded-2xl border border-border/40 bg-muted/30 p-5">
+                <Avatar className="h-16 w-16 border border-border shadow-sm">
+                  <AvatarImage src={userProfile?.data?.picture} />
+                  <AvatarFallback className="text-lg font-bold">
+                    {userProfile?.data?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="min-w-0">
+                  <h3 className="text-lg font-bold text-foreground">
+                    {userProfile?.data?.name}
+                  </h3>
+
+                  <p className="text-sm text-muted-foreground break-all">
+                    {userProfile?.data?.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid gap-4 md:grid-cols-2 mt-4">
+
+                <div className="rounded-2xl border border-border/40 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Role
+                  </p>
+
+                  <p className="mt-2 font-bold">
+                    {userProfile?.data?.role}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border/40 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Status
+                  </p>
+
+                  <p className="mt-2 font-bold">
+                    {userProfile?.data?.isActive}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border/40 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Verified
+                  </p>
+
+                  <p className="mt-2 font-bold">
+                    {userProfile?.data?.isVerified ? "Yes" : "No"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-border/40 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Phone
+                  </p>
+
+                  <p className="mt-2 font-bold">
+                    {userProfile?.data?.phone || "N/A"}
+                  </p>
+                </div>
+
+              </div>
+
+            </>
+          )}
+
+          <DialogFooter className="pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsProfileOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
+
       {/* Confirmation Dialog */}
-      <AlertDialog open={confirmDialog?.open || false} onOpenChange={(open) => !open && setConfirmDialog(null)}>
+      <AlertDialog
+        open={confirmDialog?.open || false}
+        onOpenChange={(open) => !open && setConfirmDialog(null)}
+      >
         <AlertDialogContent className="max-w-md rounded-3xl border border-border/40 bg-card/95 backdrop-blur-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
           <AlertDialogHeader className="space-y-3">
-            <div className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-2xl border shadow-inner shrink-0",
-              confirmDialog?.type === "status"
-                ? "bg-destructive/10 text-destructive border-destructive/20"
-                : "bg-primary/10 text-primary border-primary/20"
-            )}>
+            <div
+              className={cn(
+                "flex h-12 w-12 items-center justify-center rounded-2xl border shadow-inner shrink-0",
+                confirmDialog?.type === "status"
+                  ? "bg-destructive/10 text-destructive border-destructive/20"
+                  : "bg-primary/10 text-primary border-primary/20",
+              )}
+            >
               {confirmDialog?.type === "status" ? (
                 <ShieldAlert className="h-5 w-5" />
               ) : (
@@ -687,20 +900,30 @@ const AdminUsers = () => {
             </div>
             <div className="space-y-1">
               <AlertDialogTitle className="text-xl font-extrabold tracking-tight text-foreground">
-                {confirmDialog?.type === "status" ? "Block User" : "Change User Role"}
+                {confirmDialog?.type === "status"
+                  ? "Block User"
+                  : "Change User Role"}
               </AlertDialogTitle>
               <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
                 {confirmDialog?.type === "status" ? (
                   <>
-                    Are you sure you want to <strong>BLOCK</strong> {confirmDialog?.userName}? They will not be able to login.
+                    Are you sure you want to <strong>BLOCK</strong>{" "}
+                    {confirmDialog?.userName}? They will not be able to login.
                   </>
                 ) : (
                   <>
-                    Are you sure you want to change <strong>{confirmDialog?.userName}</strong>'s role to <strong>{
-                      confirmDialog?.value === "SUPER_ADMIN" ? "Super Admin" :
-                        confirmDialog?.value === "ADMIN" ? "Admin" :
-                          confirmDialog?.value === "VENDOR" ? "Vendor" : "Customer"
-                    }</strong>?
+                    Are you sure you want to change{" "}
+                    <strong>{confirmDialog?.userName}</strong>'s role to{" "}
+                    <strong>
+                      {confirmDialog?.value === "SUPER_ADMIN"
+                        ? "Super Admin"
+                        : confirmDialog?.value === "ADMIN"
+                          ? "Admin"
+                          : confirmDialog?.value === "VENDOR"
+                            ? "Vendor"
+                            : "Customer"}
+                    </strong>
+                    ?
                   </>
                 )}
               </AlertDialogDescription>
@@ -728,7 +951,7 @@ const AdminUsers = () => {
                 "min-w-[120px] rounded-xl font-bold transition-all duration-150 active:scale-95 shadow-lg cursor-pointer",
                 confirmDialog?.type === "status"
                   ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-destructive/20"
-                  : "bg-primary text-primary-foreground hover:bg-primary/95 shadow-primary/20"
+                  : "bg-primary text-primary-foreground hover:bg-primary/95 shadow-primary/20",
               )}
             >
               {isChangingRole || isChangingStatus ? (

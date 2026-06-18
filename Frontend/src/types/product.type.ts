@@ -51,3 +51,43 @@ export interface IProduct {
     createdAt?: string;
     updatedAt?: string;
 }
+
+export interface IAdminProduct {
+  _id: string;
+  name: string;
+  slug: string;
+  images: string[];
+  price: number;
+  discountPrice?: number;
+  discountPercent?: number;
+  stock: number;
+  sold: number;
+  status: "ACTIVE" | "DRAFT" | "OUT_OF_STOCK";
+  ratings: number;
+  reviewCount: number;
+  category: { _id: string; name: string };
+  shop: { _id: string; name: string; status: string };
+  vendor: { _id: string; name: string; email: string };
+  createdAt: string;
+}
+
+export interface IVendorProduct {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  images: string[];
+  price: number;
+  discountPrice?: number;
+  discountPercent?: number;
+  stock: number;
+  sold: number;
+  status: "ACTIVE" | "DRAFT" | "OUT_OF_STOCK";
+  ratings: number;
+  reviewCount: number;
+  category: { _id: string; name: string };
+  shop: { _id: string; name: string };
+  tags?: string[];
+  createdAt: string;
+}
+

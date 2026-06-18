@@ -9,3 +9,19 @@ export interface ICouponResponse {
     minOrderAmount: number;
     maxDiscount: number;
 }
+
+export interface ICoupon {
+  _id: string;
+  code: string;
+  discountType: "PERCENTAGE" | "FIXED";
+  discountValue: number;
+  minOrderAmount: number;
+  maxDiscount?: number;
+  expiryDate: string;
+  isActive: boolean;
+  usageLimit?: number;
+  usedCount: number;
+  isDeleted: boolean;
+  createdAt: string;
+}
+

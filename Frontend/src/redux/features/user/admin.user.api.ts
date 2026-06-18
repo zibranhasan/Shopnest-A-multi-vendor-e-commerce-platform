@@ -24,6 +24,14 @@ export const adminUserApi = baseApi.injectEndpoints({
       }),
       providesTags: ["User"],
     }),
+    getUserById: builder.query<IAdminUsersResponse, any>({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: "GET",
+
+      }),
+      providesTags: ["User"],
+    }),
 
     changeUserRole: builder.mutation<any, { id: string; role: string }>({
       query: ({ id, role }: { id: string; role: string }) => ({

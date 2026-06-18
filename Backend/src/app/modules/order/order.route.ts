@@ -10,7 +10,7 @@ const router = express.Router();
 // Admin only routes
 router.get(
     "/admin/all",
-    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.VENDOR),
     OrderControllers.getAllOrdersAdmin
 );
 

@@ -7,6 +7,7 @@ import { Coupon } from "../coupon/coupon.model.js";
 import { Shop } from "../shop/shop.model.js";
 import { CouponServices } from "../coupon/coupon.service.js";
 import { redisClient } from "../../config/redis.config.js";
+import { User } from "../user/user.model.js";
 
 import { OrderStatus, PaymentStatus } from "./order.interface.js";
 import { Order } from "./order.model.js";
@@ -98,14 +99,6 @@ const placeOrder = async (customerId: string,
         );
     }
 
-    // 10. increment shop totalSales
-    const uniqueShopIds = [...new Set(items.map((item) => item.shop.toString()))];
-    for (const shopId of uniqueShopIds) {
-        await Shop.findByIdAndUpdate(shopId, {
-            $inc: { totalSales: 1 },
-        });
-    }
-
     return order;
 };
 
@@ -193,12 +186,47 @@ const cancelOrder = async (customerId: string, orderId: string) => {
 };
 
 const getAllOrdersAdmin = async (query: Record<string, any>) => {
-    const orderQuery = new QueryBuilder(Order.find({ isDeleted: false }), query)
-        .search(orderSearchableFields)
+    // ── 1. Resolve customer name/email searchTerm → customer IDs ─────────
+    const searchTerm: string | undefined = query.searchTerm;
+    let customerIds: Types.ObjectId[] = [];
+
+    if (searchTerm) {
+        const matchingUsers = await User.find({
+            $or: [
+                { name: { $regex: searchTerm, $options: "i" } },
+                { email: { $regex: searchTerm, $options: "i" } },
+            ],
+        }).select("_id");
+        customerIds = matchingUsers.map((u) => u._id as Types.ObjectId);
+    }
+
+    // ── 2. Build base filter (excluding searchTerm — handled manually) ────
+    const queryWithoutSearch = { ...query };
+    delete queryWithoutSearch.searchTerm;
+
+    // ── 3. Build the QueryBuilder pipeline ───────────────────────────────
+    const orderQuery = new QueryBuilder(
+        Order.find({ isDeleted: false }),
+        queryWithoutSearch,
+    )
         .filter()
         .sort()
         .paginate()
         .fields();
+
+    // Apply customer + transactionId + couponCode search manually
+    if (searchTerm) {
+        const searchConditions: Record<string, any>[] = [
+            { transactionId: { $regex: searchTerm, $options: "i" } },
+            { couponCode: { $regex: searchTerm, $options: "i" } },
+        ];
+        if (customerIds.length > 0) {
+            searchConditions.push({ customer: { $in: customerIds } });
+        }
+        orderQuery.modelQuery = orderQuery.modelQuery.find({
+            $or: searchConditions,
+        });
+    }
 
     const result = await orderQuery.modelQuery
         .populate("customer", "name email")
@@ -206,8 +234,56 @@ const getAllOrdersAdmin = async (query: Record<string, any>) => {
 
     const meta = await orderQuery.getMeta();
 
+    // ── 4. Global statistics (never scoped to current page/filter) ────────
+    const statsAgg = await Order.aggregate([
+        { $match: { isDeleted: false } },
+        {
+            $group: {
+                _id: null,
+                totalOrders: { $sum: 1 },
+                totalRevenue: {
+                    $sum: {
+                        $cond: [
+                            { $eq: ["$paymentStatus", PaymentStatus.PAID] },
+                            "$totalAmount",
+                            0,
+                        ],
+                    },
+                },
+                paidOrders: {
+                    $sum: {
+                        $cond: [
+                            { $eq: ["$paymentStatus", PaymentStatus.PAID] },
+                            1,
+                            0,
+                        ],
+                    },
+                },
+                pendingOrders: {
+                    $sum: {
+                        $cond: [
+                            { $eq: ["$status", OrderStatus.PENDING] },
+                            1,
+                            0,
+                        ],
+                    },
+                },
+            },
+        },
+    ]);
+
+    const statistics = statsAgg[0]
+        ? {
+            totalOrders: statsAgg[0].totalOrders as number,
+            totalRevenue: statsAgg[0].totalRevenue as number,
+            paidOrders: statsAgg[0].paidOrders as number,
+            pendingOrders: statsAgg[0].pendingOrders as number,
+        }
+        : { totalOrders: 0, totalRevenue: 0, paidOrders: 0, pendingOrders: 0 };
+
     return {
         meta,
+        statistics,
         data: result,
     };
 };

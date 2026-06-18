@@ -24,3 +24,5 @@ export * from "./order.type";
 export * from "./coupon.type";
 export * from "./user.type";
 export * from "./category.type";
+export * from "./shop.type";
+export * from "./product.type";
