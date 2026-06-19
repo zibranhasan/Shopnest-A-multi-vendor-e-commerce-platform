@@ -1,5 +1,6 @@
 // src/pages/products/ProductDetails.tsx
 
+import { useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { ChevronRight, Home, MoveLeft, PackageSearch } from "lucide-react";
 
@@ -8,11 +9,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 
 import { useGetProductBySlugQuery } from "@/redux/features/product/product.api";
+import { useCheckCanReviewQuery } from "@/redux/features/review/review.api";
 
 import ProductGallery from "@/components/modules/products/ProductGallery";
 import ProductInfo from "@/components/modules/products/ProductInfo";
 import ProductTabs from "@/components/modules/products/ProductTabs";
 import RelatedProducts from "@/components/modules/products/RelatedProducts";
+import ReviewList from "@/components/modules/review/ReviewList";
+import WriteReviewDialog from "@/components/modules/review/WriteReviewDialog";
 import type { IProduct } from "@/types/product.type";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { toast } from "sonner";
@@ -204,16 +208,10 @@ const Breadcrumbs = ({ category, productName }: BreadcrumbsProps) => (
 // Main Page
 // ─────────────────────────────────────────────
 const ProductDetails = () => {
-
     const navigate = useNavigate();
-
     const location = useLocation();
-
-    const { data: userData } =
-        useUserInfoQuery(undefined);
-
-    const { slug } =
-        useParams<{ slug: string }>();
+    const { data: userData } = useUserInfoQuery(undefined);
+    const { slug } = useParams<{ slug: string }>();
 
     const {
         data,
@@ -225,6 +223,19 @@ const ProductDetails = () => {
             skip: !slug,
         }
     );
+
+    const productDataObj = data?.data as IProduct | undefined;
+    const currentUserId = userData?.data?._id;
+    const isCustomer = userData?.data?.role === "CUSTOMER";
+
+    const { data: canReviewData } = useCheckCanReviewQuery(
+        productDataObj?._id ?? "",
+        { skip: !isCustomer || !productDataObj?._id }
+    );
+    const canReview = canReviewData?.data?.canReview;
+    const orderId = canReviewData?.data?.orderId;
+
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
 
     // ─────────────────────────────────────────
     // Protected Action Handler
@@ -267,7 +278,7 @@ const ProductDetails = () => {
     }
 
     return (
-        <main className="max-w-7xl mx-auto space-y-12 px-4 py-8">
+        <main className="max-w-[1530px] mx-auto space-y-12 px-4 py-8">
 
             {/* Breadcrumbs */}
             <Breadcrumbs
@@ -302,6 +313,49 @@ const ProductDetails = () => {
             <ProductTabs
                 product={product}
             />
+
+            {/* Reviews Section */}
+            <section className="mt-12 border-t pt-8 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                        Customer Reviews
+                    </h2>
+
+                    {/* Write Review Button */}
+                    {isCustomer && canReview && (
+                        <Button onClick={() => setIsReviewOpen(true)} className="rounded-xl font-bold">
+                            Write a Review
+                        </Button>
+                    )}
+
+                    {/* Already reviewed message */}
+                    {isCustomer && !canReview && canReviewData?.data?.reason && (
+                        <p className="text-sm font-semibold text-muted-foreground bg-muted/50 px-4 py-2 rounded-xl border border-border/40">
+                            {canReviewData.data.reason}
+                        </p>
+                    )}
+
+                    {/* Not logged in */}
+                    {!userData?.data?.email && (
+                        <Button variant="outline" asChild className="rounded-xl font-bold">
+                            <Link to="/login">Login to Review</Link>
+                        </Button>
+                    )}
+                </div>
+
+                <ReviewList
+                    productId={product._id}
+                    currentUserId={currentUserId}
+                />
+
+                {isReviewOpen && orderId && (
+                    <WriteReviewDialog
+                        productId={product._id}
+                        orderId={orderId}
+                        onClose={() => setIsReviewOpen(false)}
+                    />
+                )}
+            </section>
 
             {/* Related Products */}
             {product.category?._id && (

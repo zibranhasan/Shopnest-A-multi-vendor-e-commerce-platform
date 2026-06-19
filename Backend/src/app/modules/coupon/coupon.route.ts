@@ -27,7 +27,6 @@ router.post(
 // 3. GET /coupons
 router.get(
     "/",
-    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     CouponControllers.getAllCoupons
 );
 

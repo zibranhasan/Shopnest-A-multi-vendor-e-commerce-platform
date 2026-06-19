@@ -63,7 +63,7 @@ const VendorShop = () => {
     const shop: IVendorShop | undefined = data?.data;
     const hasNoShop = isError || !shop;
 
-    console.log("my shop", shop)
+    // console.log("my shop", shop)
 
     const [createShop, { isLoading: isCreating }] = useCreateShopMutation();
     const [updateMyShop, { isLoading: isUpdating }] = useUpdateMyShopMutation();

@@ -194,61 +194,39 @@ const getDialogConfig = (action: string | undefined) => {
 
 const AdminShops = () => {
   // critical auth pattern
+  // States
   const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const { data: userData, isLoading: isAuthLoading } = useUserInfoQuery(undefined);
-  const { data: shopData, isLoading: isShopLoading } =
-    useGetShopByIdAdminQuery(selectedShopId!, {
-      skip: !selectedShopId,
-    });
-
-  const isLoggedIn = !!userData?.data?.email;
-
-  const [updateShopStatus, { isLoading: isUpdating }] = useUpdateShopStatusMutation();
-
-  if (isAuthLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!isLoggedIn) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center flex-col gap-2">
-        <ShieldAlert className="h-8 w-8 text-destructive" />
-        <p className="text-sm font-semibold text-muted-foreground">Access Denied</p>
-      </div>
-    );
-  }
-
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const limit = 10;
-
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     action: "approve" | "reject" | "suspend" | "reactivate";
     shopId: string;
     shopName: string;
   } | null>(null);
-
   const [mutatingId, setMutatingId] = useState<string | null>(null);
 
+  const limit = 10;
+
+  // Query HOOKS
+
+  const { data: userData, isLoading: isAuthLoading } = useUserInfoQuery(undefined);
+  const { data: shopData, isLoading: isShopLoading } =
+    useGetShopByIdAdminQuery(selectedShopId!, {
+      skip: !selectedShopId,
+    });
+  const [updateShopStatus, { isLoading: isUpdating }] = useUpdateShopStatusMutation();
   // Stats Counters (RTK Query Cache Invalidates all of these because they use providesTags: ["Shop"])
   const { data: allShopsCountData } = useGetAllShopsAdminQuery({ limit: 1 });
   const { data: pendingCountData } = useGetAllShopsAdminQuery({ status: "PENDING", limit: 1 });
   const { data: activeCountData } = useGetAllShopsAdminQuery({ status: "ACTIVE", limit: 1 });
   const { data: suspendedCountData } = useGetAllShopsAdminQuery({ status: "SUSPENDED", limit: 1 });
 
-  const totalShops = allShopsCountData?.meta?.total || 0;
-  const pendingCount = pendingCountData?.meta?.total || 0;
-  const activeCount = activeCountData?.meta?.total || 0;
-  const suspendedCount = suspendedCountData?.meta?.total || 0;
 
+  //EFFECTS
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -261,6 +239,10 @@ const AdminShops = () => {
     setPage(1);
   }, [debouncedSearch, statusFilter]);
 
+  //DERIVED VALUES
+
+  const isLoggedIn = !!userData?.data?.email;
+
   const queryParams = {
     ...(debouncedSearch && { searchTerm: debouncedSearch }),
     ...(statusFilter && statusFilter !== "all" && { status: statusFilter }),
@@ -270,15 +252,12 @@ const AdminShops = () => {
 
   const { data: shopsData, isLoading } = useGetAllShopsAdminQuery(queryParams);
 
-  const rawShops = shopsData?.data || [];
-  // Sort PENDING shops first by default
-  const shops = [...rawShops].sort((a, b) => {
-    if (a.status === "PENDING" && b.status !== "PENDING") return -1;
-    if (a.status !== "PENDING" && b.status === "PENDING") return 1;
-    return 0;
-  });
+  const totalShops = allShopsCountData?.meta?.total || 0;
+  const pendingCount = pendingCountData?.meta?.total || 0;
+  const activeCount = activeCountData?.meta?.total || 0;
+  const suspendedCount = suspendedCountData?.meta?.total || 0;
 
-  const meta = shopsData?.meta;
+  //Handlers 
 
   const handleActionClick = (
     action: "approve" | "reject" | "suspend" | "reactivate",
@@ -329,6 +308,36 @@ const AdminShops = () => {
       setMutatingId(null);
     }
   };
+
+  if (isAuthLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center flex-col gap-2">
+        <ShieldAlert className="h-8 w-8 text-destructive" />
+        <p className="text-sm font-semibold text-muted-foreground">Access Denied</p>
+      </div>
+    );
+  }
+
+
+  const rawShops = shopsData?.data || [];
+  // Sort PENDING shops first by default
+  const shops = [...rawShops].sort((a, b) => {
+    if (a.status === "PENDING" && b.status !== "PENDING") return -1;
+    if (a.status !== "PENDING" && b.status === "PENDING") return 1;
+    return 0;
+  });
+
+  const meta = shopsData?.meta;
+
+
 
   const dialogConfig = getDialogConfig(confirmDialog?.action);
 

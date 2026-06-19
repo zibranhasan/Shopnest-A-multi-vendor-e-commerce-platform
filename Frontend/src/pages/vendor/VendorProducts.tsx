@@ -414,16 +414,16 @@ const VendorProducts = () => {
             fd.append("description", form.description.trim());
             fd.append("category", form.categoryId);
             fd.append("price", String(form.price));
-            
+
             // Handle clearing discount price explicitly
             if (form.discountPrice) {
                 fd.append("discountPrice", String(form.discountPrice));
             } else {
                 fd.append("discountPrice", "");
             }
-            
+
             fd.append("stock", String(form.stock));
-            
+
             // Re-append tags. We clear and re-append them or append all
             form.tags.forEach(tag => fd.append("tags", tag));
             if (form.tags.length === 0) {
@@ -724,9 +724,8 @@ const VendorProducts = () => {
                                     return (
                                         <TableRow
                                             key={product._id}
-                                            className={`hover:bg-muted/30 transition-colors border-b border-border/25 ${
-                                                isDraft ? "border-l-4 border-l-amber-500" : isOut ? "border-l-4 border-l-destructive" : ""
-                                            }`}
+                                            className={`hover:bg-muted/30 transition-colors border-b border-border/25 ${isDraft ? "border-l-4 border-l-amber-500" : isOut ? "border-l-4 border-l-destructive" : ""
+                                                }`}
                                         >
                                             {/* Product Column */}
                                             <TableCell className="py-4">
@@ -867,9 +866,8 @@ const VendorProducts = () => {
                             return (
                                 <Card
                                     key={product._id}
-                                    className={`rounded-2xl border border-border/45 bg-card/45 p-5 space-y-4 hover:border-border/60 transition-all ${
-                                        isDraft ? "border-l-4 border-l-amber-500" : isOut ? "border-l-4 border-l-destructive" : ""
-                                    }`}
+                                    className={`rounded-2xl border border-border/45 bg-card/45 p-5 space-y-4 hover:border-border/60 transition-all ${isDraft ? "border-l-4 border-l-amber-500" : isOut ? "border-l-4 border-l-destructive" : ""
+                                        }`}
                                 >
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex items-start gap-3.5">
@@ -1029,7 +1027,7 @@ const VendorProducts = () => {
                 setIsCreateOpen(open);
                 if (!open) resetForm();
             }}>
-                <DialogContent className="rounded-2xl max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="rounded-2xl max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-extrabold text-foreground flex items-center gap-1.5">
                             <Sparkles className="h-5 w-5 text-primary" />
