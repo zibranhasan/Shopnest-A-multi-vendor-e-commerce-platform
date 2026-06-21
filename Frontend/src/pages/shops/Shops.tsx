@@ -160,7 +160,7 @@ const Shops = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <div className="container mx-auto max-w-7xl space-y-8 px-4 py-8">
+            <div className="max-w-[1530px] mx-auto space-y-12 px-4 py-8">
 
                 {/* Breadcrumbs */}
                 <Breadcrumbs />

@@ -4,6 +4,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useGetAllCouponsQuery } from "@/redux/features/coupon/coupon.api";
 import type { ICoupon } from "@/types";
+import Autoplay from "embla-carousel-autoplay";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const fallbackCoupons: ICoupon[] = [
     {
@@ -82,12 +90,13 @@ const PromoBanner = () => {
     };
 
     return (
-        <section className="py-16 bg-muted/20 overflow-hidden relative">
-            <div className="container mx-auto px-4">
+        <section className="relative py-20 overflow-hidden">
+            <div className="container mx-auto max-w-7xl px-6">
+
                 {/* Section Header */}
                 <div className="text-center mb-12 space-y-2 animate-in fade-in duration-750">
                     <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground flex items-center justify-center gap-2">
-                        <Tag className="h-7 w-7 text-primary animate-pulse" />
+                        <Tag className="h-8 w-8 text-primary" />
                         Exclusive Offers
                     </h2>
                     <p className="text-muted-foreground text-sm md:text-base font-medium">
@@ -96,88 +105,119 @@ const PromoBanner = () => {
                 </div>
 
                 {/* Carousel wrapper with fade gradients */}
-                <div
-                    className="relative w-full overflow-hidden py-6"
-                    style={{
-                        maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
-                        WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+                <Carousel
+                    opts={{
+                        align: "start",
+                        loop: true,
                     }}
+                    plugins={[
+                        Autoplay({
+                            delay: 3500,
+                            stopOnInteraction: true,
+                            stopOnMouseEnter: true,
+                        }),
+                    ]}
+                    className="w-full"
                 >
-                    <div className="flex gap-6 animate-marquee w-max py-2 select-none">
-                        {displayCoupons.map((coupon, idx) => (
-                            <div
-                                key={`${coupon._id}-${idx}`}
-                                className={`flex-shrink-0 w-[280px] bg-card border border-border/40 rounded-3xl shadow-xl border-t-4 border-primary p-6 space-y-4 hover:scale-105 hover:shadow-2xl transition-all duration-300 animate-float-${idx % 4}`}
+                    <CarouselContent className="-ml-4">
+                        {coupons.map((coupon) => (
+                            <CarouselItem
+                                key={coupon._id}
+                                className="
+                                pl-4
+          basis-full
+          md:basis-1/2
+          xl:basis-1/2
+        "
                             >
-                                {/* Coupon header */}
-                                <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
-                                    <span className="inline-flex items-center gap-1.5 uppercase tracking-wider bg-muted px-2.5 py-0.5 rounded-full">
-                                        🏷️ {coupon.discountType === "PERCENTAGE" ? "Percentage" : "Fixed"}
-                                    </span>
-                                </div>
-
-                                {/* Monospace code display */}
-                                <div className="bg-muted/70 rounded-2xl p-3.5 text-center border border-border/30">
-                                    <span className="font-mono text-2xl font-black tracking-widest text-foreground">
-                                        {coupon.code}
-                                    </span>
-                                </div>
-
-                                {/* Discount details */}
-                                <div className="text-center space-y-1 py-1">
-                                    <div className="text-primary text-3xl font-black tracking-tight">
-                                        {coupon.discountType === "PERCENTAGE"
-                                            ? `${coupon.discountValue}% OFF`
-                                            : `৳${coupon.discountValue.toLocaleString()} OFF`}
+                                <div
+                                    className="
+            bg-card
+            border
+            border-border/50
+            rounded-3xl
+            shadow-sm
+            hover:shadow-xl
+            transition-all
+            duration-300
+            p-6
+            space-y-4
+            h-full
+          "
+                                >
+                                    <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
+                                        Limited Time Deals
                                     </div>
-                                    {coupon.discountType === "PERCENTAGE" && coupon.maxDiscount && (
-                                        <div className="text-xs text-muted-foreground font-semibold">
-                                            Up to ৳{coupon.maxDiscount.toLocaleString()} savings
+                                    {/* Coupon header */}
+                                    <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+                                        <span className="inline-flex items-center gap-1.5 uppercase tracking-wider bg-muted px-2.5 py-0.5 rounded-full">
+                                            🏷️{" "}
+                                            {coupon.discountType === "PERCENTAGE"
+                                                ? "Percentage"
+                                                : "Fixed"}
+                                        </span>
+                                    </div>
+
+                                    {/* Code */}
+                                    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-center">
+                                        <span className="font-mono text-2xl font-black tracking-widest">
+                                            {coupon.code}
+                                        </span>
+                                    </div>
+
+                                    {/* Discount */}
+                                    <div className="text-center space-y-1">
+                                        <div className="text-primary text-4xl lg:text-5xl font-black">
+                                            {coupon.discountType === "PERCENTAGE"
+                                                ? `${coupon.discountValue}% OFF`
+                                                : `৳${coupon.discountValue.toLocaleString()} OFF`}
                                         </div>
-                                    )}
-                                </div>
-
-                                {/* Limits and Expiry */}
-                                <div className="text-xs text-muted-foreground space-y-1 text-center border-t border-border/40 pt-3">
-                                    <div>
-                                        Min. order:{" "}
-                                        <span className="font-bold text-foreground">
-                                            ৳{coupon.minOrderAmount.toLocaleString()}
-                                        </span>
                                     </div>
-                                    <div>
-                                        Expires:{" "}
-                                        <span className="font-bold text-foreground">
-                                            {formatDate(coupon.expiryDate)}
-                                        </span>
-                                    </div>
-                                </div>
 
-                                {/* Action button */}
-                                <div className="pt-2">
+                                    {/* Info */}
+                                    <div className="text-xs text-muted-foreground space-y-1 text-center border-t pt-3">
+                                        <div>
+                                            Min. order:
+                                            <span className="font-bold text-foreground ml-1">
+                                                ৳{coupon.minOrderAmount.toLocaleString()}
+                                            </span>
+                                        </div>
+
+                                        <div className="text-red-500 font-semibold">
+                                            Expires:
+                                            <span className="font-bold text-foreground ml-1">
+                                                {formatDate(coupon.expiryDate)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Button */}
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleCopy(coupon.code)}
-                                        className="w-full rounded-2xl h-10 font-bold transition-all duration-300 hover:bg-primary hover:text-primary-foreground border-primary/30 text-primary cursor-pointer"
+                                        className="w-full rounded-2xl"
                                     >
                                         {copiedCode === coupon.code ? (
                                             <>
-                                                <Check className="h-4 w-4 mr-1.5 text-emerald-500" />
-                                                Copied! ✓
+                                                <Check className="h-4 w-4 mr-2" />
+                                                Copied!
                                             </>
                                         ) : (
                                             <>
-                                                <Copy className="h-4 w-4 mr-1.5" />
+                                                <Copy className="h-4 w-4 mr-2" />
                                                 Copy Code
                                             </>
                                         )}
                                     </Button>
                                 </div>
-                            </div>
+                            </CarouselItem>
                         ))}
-                    </div>
-                </div>
+                    </CarouselContent>
+
+                    <CarouselPrevious className="hidden md:flex" />
+                    <CarouselNext className="hidden md:flex" />
+                </Carousel>
             </div>
         </section>
     );

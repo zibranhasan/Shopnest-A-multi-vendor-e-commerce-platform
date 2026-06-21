@@ -115,7 +115,7 @@ const ShopDetails = () => {
 
     return (
         <main className="min-h-screen bg-background">
-            <div className="container mx-auto max-w-7xl space-y-10 px-4 py-8">
+            <div className="mx-auto max-w-screen-2xl px-6 lg:px-8">
 
                 {/* Breadcrumbs */}
                 <Breadcrumbs shopName={shop.name} />
@@ -124,7 +124,7 @@ const ShopDetails = () => {
                 <ShopInfo shop={shop} onScrollToProducts={handleScrollToProducts} />
 
                 {/* ── About + Stats ── */}
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 gap-12">
 
                     {/* About (left) */}
                     <div className="lg:col-span-2 space-y-6">
@@ -153,7 +153,7 @@ const ShopDetails = () => {
                                             <img
                                                 src={shop.vendor.picture}
                                                 alt={shop.vendor.name}
-                                                className="h-full w-full object-cover"
+                                                className="w-full max-w-2xl object-cover"
                                             />
                                         ) : (
                                             <div className="h-full w-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
